@@ -1,0 +1,49 @@
+Benchmark with 100 elements (data size per test = 0.001MB) and 100000000 loops
+
+Searching for non-existent element in vector:
+[ vector, indexed by size_t, using size()] 9036969400(ns) 90.369690(ns/loop)
+[vector, indexed by size_t, cached size()] 9123633400(ns) 91.236328(ns/loop)
+[         vector, iterated, calling end()] 9160765900(ns) 91.607651(ns/loop)
+[          vector, iterated, cached end()] 9143610700(ns) 91.436104(ns/loop)
+
+Searching for non-existent element in set:
+[                      set, using count()] 852255000(ns) 8.522550(ns/loop)
+[                       set, using find()] 864501100(ns) 8.645011(ns/loop)
+
+Searching for non-existent element in unordered_set:
+[            unordered_set, using count()] 79542200(ns) 0.795422(ns/loop)
+[             unordered_set, using find()] 77973200(ns) 0.779732(ns/loop)
+
+Relative comparison (= slower than the fastest by this ratio):
+[             unordered_set, using find()] 1.000x
+[            unordered_set, using count()] 1.020x
+[                      set, using count()] 10.930x
+[                       set, using find()] 11.087x
+[ vector, indexed by size_t, using size()] 115.898x
+[vector, indexed by size_t, cached size()] 117.010x
+[          vector, iterated, cached end()] 117.266x
+[         vector, iterated, calling end()] 117.486x
+
+Searching for middle element in vector:
+[ vector, indexed by size_t, using size()] 6015697800(ns) 60.156979(ns/loop)
+[vector, indexed by size_t, cached size()] 6112055800(ns) 61.120560(ns/loop)
+[         vector, iterated, calling end()] 6100909100(ns) 61.009090(ns/loop)
+[          vector, iterated, cached end()] 6080733800(ns) 60.807339(ns/loop)
+
+Searching for middle element in set:
+[                      set, using count()] 995601400(ns) 9.956014(ns/loop)
+[                       set, using find()] 984200800(ns) 9.842009(ns/loop)
+
+Searching for middle element in unordered_set:
+[            unordered_set, using count()] 1127731500(ns) 11.277314(ns/loop)
+[             unordered_set, using find()] 115600400(ns) 1.156004(ns/loop)
+
+Relative comparison (= slower than the fastest by this ratio):
+[             unordered_set, using find()] 1.000x
+[                       set, using find()] 8.514x
+[                      set, using count()] 8.612x
+[            unordered_set, using count()] 9.755x
+[ vector, indexed by size_t, using size()] 52.039x
+[          vector, iterated, cached end()] 52.601x
+[         vector, iterated, calling end()] 52.776x
+[vector, indexed by size_t, cached size()] 52.872x

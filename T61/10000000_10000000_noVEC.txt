@@ -1,0 +1,29 @@
+Benchmark with 10000000 elements (data size per test = 76.294MB) and 10000000 loops
+
+Searching for non-existent element in set:
+[                      set, using count()] 1467772800(ns) 146.777283(ns/loop)
+[                       set, using find()] 1468333400(ns) 146.833344(ns/loop)
+
+Searching for non-existent element in unordered_set:
+[            unordered_set, using count()] 8110300(ns) 0.811030(ns/loop)
+[             unordered_set, using find()] 8023600(ns) 0.802360(ns/loop)
+
+Relative comparison (= slower than the fastest by this ratio):
+[             unordered_set, using find()] 1.000x
+[            unordered_set, using count()] 1.011x
+[                      set, using count()] 182.932x
+[                       set, using find()] 183.002x
+
+Searching for middle element in set:
+[                      set, using count()] 2116819100(ns) 211.681900(ns/loop)
+[                       set, using find()] 2092320800(ns) 209.232071(ns/loop)
+
+Searching for middle element in unordered_set:
+[            unordered_set, using count()] 115292400(ns) 11.529240(ns/loop)
+[             unordered_set, using find()] 11987800(ns) 1.198780(ns/loop)
+
+Relative comparison (= slower than the fastest by this ratio):
+[             unordered_set, using find()] 1.000x
+[            unordered_set, using count()] 9.617x
+[                       set, using find()] 174.538x
+[                      set, using count()] 176.581x
