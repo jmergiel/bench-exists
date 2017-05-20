@@ -1,29 +1,39 @@
-Benchmark with 10000000 elements (data size per test = 76.294MB) and 1000000 loops
+Benchmark with 10000000 elements (data per loop = 76.294MB) and 1000000 loops
+Searching through 72.760TB of data per test with vector cutoff limit = 700GB
+Vector cutoff limit reached - skipping linear vector benchmarks
+
+Searching for non-existent element in vector:
+[    vector, sorted, std::binary_search()] 46562000(ns) 46.562000(ns/loop)
 
 Searching for non-existent element in set:
-[                      set, using count()] 148971900(ns) 148.971909(ns/loop)
-[                       set, using find()] 153873100(ns) 153.873108(ns/loop)
+[                      set, using count()] 138921400(ns) 138.921402(ns/loop)
+[                       set, using find()] 142326700(ns) 142.326706(ns/loop)
 
 Searching for non-existent element in unordered_set:
 [            unordered_set, using count()] 751000(ns) 0.751000(ns/loop)
-[             unordered_set, using find()] 1183000(ns) 1.183000(ns/loop)
-
-Relative comparison (= slower than the fastest by this ratio):
-[            unordered_set, using count()] 1.000x
-[             unordered_set, using find()] 1.575x
-[                      set, using count()] 198.365x
-[                       set, using find()] 204.891x
-
-Searching for middle element in set:
-[                      set, using count()] 216263100(ns) 216.263107(ns/loop)
-[                       set, using find()] 212853200(ns) 212.853195(ns/loop)
-
-Searching for middle element in unordered_set:
-[            unordered_set, using count()] 10853300(ns) 10.853300(ns/loop)
-[             unordered_set, using find()] 1127600(ns) 1.127600(ns/loop)
+[             unordered_set, using find()] 746600(ns) 0.746600(ns/loop)
 
 Relative comparison (= slower than the fastest by this ratio):
 [             unordered_set, using find()] 1.000x
-[            unordered_set, using count()] 9.625x
-[                       set, using find()] 188.767x
-[                      set, using count()] 191.791x
+[            unordered_set, using count()] 1.006x
+[    vector, sorted, std::binary_search()] 62.365x
+[                      set, using count()] 186.072x
+[                       set, using find()] 190.633x
+
+Searching for middle element in vector:
+[    vector, sorted, std::binary_search()] 81198600(ns) 81.198601(ns/loop)
+
+Searching for middle element in set:
+[                      set, using count()] 228042600(ns) 228.042587(ns/loop)
+[                       set, using find()] 238477100(ns) 238.477097(ns/loop)
+
+Searching for middle element in unordered_set:
+[            unordered_set, using count()] 11545500(ns) 11.545500(ns/loop)
+[             unordered_set, using find()] 4252500(ns) 4.252500(ns/loop)
+
+Relative comparison (= slower than the fastest by this ratio):
+[             unordered_set, using find()] 1.000x
+[            unordered_set, using count()] 2.715x
+[    vector, sorted, std::binary_search()] 19.094x
+[                      set, using count()] 53.626x
+[                       set, using find()] 56.079x
