@@ -6,6 +6,7 @@
 #include <cassert>
 #include <map>
 #include <string>
+#include <algorithm>
 #include <unordered_set>
 
 // benchmark name format
@@ -62,44 +63,60 @@ namespace Vector
 		for(vec_t::const_iterator it = vec.begin(); it != End; ++it) if(*it==val) return true;
 		return false;
 	}
+	inline bool IsInVectorBinary(const vec_t& vec, val_t val)
+	{
+		return std::binary_search(vec.begin(), vec.end(), val);
+	}
 
-	void TestVector(const size_t elems, const size_t loops, const size_t expected_count, val_t needle)
+	void TestVector(const size_t elems, const size_t loops, const size_t expected_count, val_t needle, bool bSkipLinear)
 	{
 		vec_t vec(elems);
 		std::iota(vec.begin(), vec.end(), 1);
 
 		printf("\nSearching for %s element in vector:\n", needle ? "middle" : "non-existent");
+		if(!bSkipLinear)
 		{
-			size_t counter = 0;
-			const time_point<ClockT> start = ClockT::now();
-			for(size_t L=0; L<loops; ++L) if(IsInVectorIdxSize(vec, needle)) ++counter;
-			const time_point<ClockT> end = ClockT::now();
-			assert(counter == expected_count);
-			PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, indexed by size_t, using size()");
+			{
+				size_t counter = 0;
+				const time_point<ClockT> start = ClockT::now();
+				for(size_t L=0; L<loops; ++L) if(IsInVectorIdxSize(vec, needle)) ++counter;
+				const time_point<ClockT> end = ClockT::now();
+				assert(counter == expected_count);
+				PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, indexed by size_t, using size()");
+			}
+			{
+				size_t counter = 0;
+				const time_point<ClockT> start = ClockT::now();
+				for(size_t L=0; L<loops; ++L) if(IsInVectorIdxNoSize(vec, needle)) ++counter;
+				const time_point<ClockT> end = ClockT::now();
+				assert(counter == expected_count);
+				PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, indexed by size_t, cached size()");
+			}
+			{
+				size_t counter = 0;
+				const time_point<ClockT> start = ClockT::now();
+				for(size_t L=0; L<loops; ++L) if(IsInVectorIterEnd(vec, needle)) ++counter;
+				const time_point<ClockT> end = ClockT::now();
+				assert(counter == expected_count);
+				PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, iterated, calling end()");
+			}
+			{
+				size_t counter = 0;
+				const time_point<ClockT> start = ClockT::now();
+				for(size_t L=0; L<loops; ++L) if(IsInVectorIterNoEnd(vec, needle)) ++counter;
+				const time_point<ClockT> end = ClockT::now();
+				assert(counter == expected_count);
+				PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, iterated, cached end()");
+			}
 		}
 		{
 			size_t counter = 0;
 			const time_point<ClockT> start = ClockT::now();
-			for(size_t L=0; L<loops; ++L) if(IsInVectorIdxNoSize(vec, needle)) ++counter;
+			// conveniently the vector is already sorted
+			for(size_t L=0; L<loops; ++L) if(IsInVectorBinary(vec, needle)) ++counter;
 			const time_point<ClockT> end = ClockT::now();
 			assert(counter == expected_count);
-			PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, indexed by size_t, cached size()");
-		}
-		{
-			size_t counter = 0;
-			const time_point<ClockT> start = ClockT::now();
-			for(size_t L=0; L<loops; ++L) if(IsInVectorIterEnd(vec, needle)) ++counter;
-			const time_point<ClockT> end = ClockT::now();
-			assert(counter == expected_count);
-			PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, iterated, calling end()");
-		}
-		{
-			size_t counter = 0;
-			const time_point<ClockT> start = ClockT::now();
-			for(size_t L=0; L<loops; ++L) if(IsInVectorIterNoEnd(vec, needle)) ++counter;
-			const time_point<ClockT> end = ClockT::now();
-			assert(counter == expected_count);
-			PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, iterated, cached end()");
+			PrintResult(duration_cast<unit_t>(end - start).count(), loops, "vector, sorted, std::binary_search()");
 		}
 	}
 }
@@ -147,19 +164,25 @@ namespace Sets
 
 int main(int argc, const char** argv)
 {
-	if(argc != 3)
+	if(argc < 3)
 	{
 		printf("This benchmark initializes a container with consecutive numbers and looks for a single value\n");
 		printf("using different methods. Benchmarked containers: std::vector, std::set and std::unordered_set\n");
 		printf("This is all about measuring the time needed to check if an element exists, nothing else matters.\n");
-		printf("\nUSAGE: number_of_elements loops\n\n");
+		printf("\nUSAGE: number_of_elements  number_of_loops  [search_limit_GB]\n\n");
 		return -1;
 	}
 
 	const size_t elems = std::stoul(argv[1]);
 	const size_t loops = std::stoul(argv[2]);
+	const size_t limit = argc == 4 ? std::stoul(argv[3]) : 0;
+	//^ the limit of total GBs searched per test (above which we skip linear vector benchmarks)
 
-	printf("Benchmark with %lu elements (data size per test = %.03fMB) and %lu loops\n", elems, (sizeof(val_t)*elems)/1024.0f/1024.0f, loops);
+	printf("Benchmark with %lu elements (data per loop = %.03fMB) and %lu loops\n", elems, (sizeof(val_t)*elems)/1024.0f/1024.0f, loops);
+	printf("Searching through %.03fTB of data per test with vector cutoff limit = %luGB%s\n",
+		(sizeof(val_t)*elems*loops)/1024.0f/1024/1024/1024, limit, limit?"":" (no limit)");
+	if(limit && (sizeof(val_t)*elems*loops > (limit<<30)))
+		printf("Vector cutoff limit reached - skipping linear vector benchmarks\n");
 
 	// i==0: search for non-existent value
 	// i==1: search for middle value
@@ -167,7 +190,7 @@ int main(int argc, const char** argv)
 	{
 		const size_t exp = i ? loops : 0;		//< expected count of finds
 		const val_t needle = i ? elems/2 : 0;	//< value to search for
-		Vector::TestVector(elems, loops, exp, needle);
+		Vector::TestVector(elems, loops, exp, needle, limit ? (sizeof(val_t)*elems*loops > (limit<<30)) : false);
 		Sets::TestSet<std::set<val_t> >(elems, loops, exp, "set", needle);
 		Sets::TestSet<std::unordered_set<val_t> >(elems, loops, exp, "unordered_set", needle);
 		PrintComparison();
